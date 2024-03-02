@@ -1,0 +1,20 @@
+{
+    "extends": "@egomobile/tsconfig",
+    "compilerOptions": {
+        "allowJs": true,
+        "outDir": "dist",
+        "target": "es2021",
+        "removeComments": true,
+        "moduleResolution": "node",
+        "lib": [
+            "es2022"
+        ],
+        "esModuleInterop": true,
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "resolveJsonModule": true
+    },
+    "exclude": [
+        "node_modules"
+    ]
+}
