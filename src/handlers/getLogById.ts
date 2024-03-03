@@ -24,21 +24,40 @@ import type { IHttpRequest, IHttpResponse } from "@egomobile/http-server";
 import { withPostgres } from "../databases/postgres";
 import { Log } from "../databases/postgres/entities/default";
 
-export default async function getAllLogs(request: IHttpRequest, response: IHttpResponse) {
+export default async function getLogById(request: IHttpRequest, response: IHttpResponse) {
+    // get URL parameter `:log_id`
+    const logID = request.params!.log_id.toLowerCase().trim();
+
     await withPostgres("default", async (context) => {
-        // load all rows from `logs` table
-        // and map them with new `Log` instances
-        const allLogs = await context.find(Log);
-
-        // prepare data for response
-        const allLogsAsJSON = JSON.stringify(allLogs);
-        const allLogsData = Buffer.from(allLogsAsJSON, "utf8");
-
-        // send response with code 200
-        response.writeHead(200, {
-            "Content-Type": "application/json; charset=UTF-8",
-            "Content-Length": allLogsData.length
+        // search for row in `logs` table with `uuid` from `logID`
+        // and try to map it with a new `Log` instance
+        const logEntry = await context.findOne(Log, {
+            "where": "uuid = $1",
+            "params": [logID]
         });
-        response.write(allLogsData);
+
+        if (logEntry) {
+            // found
+
+            // prepare data for response
+            const logEntryAsJSON = JSON.stringify(logEntry);
+            const logEntryData = Buffer.from(logEntryAsJSON, "utf8");
+
+            // send OK response
+            response.writeHead(200, {
+                "Content-Type": "application/json; charset=UTF-8",
+                "Content-Length": logEntryData.length
+            });
+            response.write(logEntryData);
+        }
+        else {
+            // not found
+
+            // send error response 404 - Not Found
+            response.writeHead(404, {
+                "Content-Type": "text/plain; charset=UTF-8",
+                "Content-Length": 0
+            });
+        }
     });
 }

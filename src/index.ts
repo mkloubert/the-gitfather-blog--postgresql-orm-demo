@@ -23,29 +23,55 @@
 import {
     createServer,
     json,
+    params,
     validateAjv
 } from "@egomobile/http-server";
+import cors from "cors";
 
+// we organize handlers into `./handlers` subfolder
 import createNewLog, { newLogBodySchema } from "./handlers/createNewLog";
 import getAllLogs from "./handlers/getAllLogs";
+import getLogById from "./handlers/getLogById";
 
 async function main() {
     const app = createServer();
 
+    // setup global middleware
     app.use(async (request, response, next) => {
         console.log(`[REQUEST:${request.method}]`, new Date(), request.url);
 
         next();
     });
 
-    app.get("/api/v1/logs", getAllLogs);
+    // setup routes
+    {
+        // a GET endpoint with a
+        // route specific middleware
+        app.get(
+            "/api/v1/logs",
+            [cors()],
+            getAllLogs
+        );
 
-    app.post(
-        "/api/v1/logs",
-        [json(), validateAjv(newLogBodySchema)],
-        createNewLog
-    );
+        // a route with a parameter
+        // we need the `params()` here to explicitly
+        // define, that we want to support routes
+        app.get(
+            params("/api/v1/logs/:log_id"),
+            getLogById
+        );
 
+        // create a new log entry
+        // as described by JSON schema
+        // in `newLogBodySchema`
+        app.post(
+            "/api/v1/logs",
+            [json(), validateAjv(newLogBodySchema)],
+            createNewLog
+        );
+    }
+
+    // start the server
     await app.listen(process.env.PORT);
     console.log("App now running on port", app.port);
 }
