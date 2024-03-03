@@ -22,10 +22,16 @@
 
 import type { EntityConfigurations } from "@egomobile/orm";
 
+// entity configurations we will later export as
+// `EntityConfigurations`
 import LogEntity from "./logs";
 
+// export classes, so that they can be later
+// imported from this script directly
 export { Log } from "./logs";
 
+// export all *Entity configurations
+// as `default` getter
 export default (): EntityConfigurations => {
     return {
         "logs": LogEntity

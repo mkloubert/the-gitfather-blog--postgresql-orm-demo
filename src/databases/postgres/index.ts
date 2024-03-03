@@ -31,11 +31,27 @@ registerBigIntAsNumber({
     "pgModule": pg
 });
 
+// in this folder we organize the POCOs
 import getDefaultEntityConfiguration from "./entities/default";
 
+// `createWithPostgres` is a factory function that creates
+// a new PostgreSQL connection with specific configuration
+// organized by connection names
 export const withPostgres = createWithPostgres({
     "default": {
         "client": () => {
+            // this is the default and lets
+            // `pg` module load the connection settings from
+            // following environment variables:
+            //
+            // - PGDATABASE
+            // - PGHOST
+            // - PGPASSWORD
+            // - PGPORT
+            // - PGSSLMODE
+            // - PGUSER
+            // - PORT
+
             return {};
         },
         "clientClass": pg.Client,
